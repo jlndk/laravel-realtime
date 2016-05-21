@@ -1,12 +1,12 @@
 {
-    "name": "Jlndk/LaravelRealtime",
+    "name": "jlndk/laravel-realtime",
     "type": "library",
     "description": "A realtime library for laravel without compromises, using WAMPv2!",
     "keywords": [
         "laravel",
         "realtime"
     ],
-    "homepage": "https://github.com/Jlndk/LaravelRealtime",
+    "homepage": "https://github.com/Jlndk/laravel-realtime",
     "license": "MIT",
     "authors": [
         {
