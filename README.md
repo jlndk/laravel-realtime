@@ -16,7 +16,7 @@ First add this package via composer:
 $ composer require jlndk/laravel-realtime
 ```
 
-Then add the service provider to the `providers` array in `config/app.php`
+Then add the `RealtimeServiceProvider` to the `providers` array in `config/app.php`
 
 ``` php
 Jlndk\LaravelRealtime\Providers\RealtimeServiceProvider::class,
@@ -26,6 +26,13 @@ After the service provider is added, you need to publish the relevant files:
 ``` bash
 $ php artisan vendor:publish --tag=all
 ```
+
+Finally add the `RealtimeEventServiceProvider` to the `providers` array in `config/app.php`
+
+``` php
+Jlndk\LaravelRealtime\Providers\RealtimeServiceProvider::class,
+```
+
 
 ## Usage
 
