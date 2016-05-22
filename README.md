@@ -30,7 +30,7 @@ $ php artisan vendor:publish --tag=all
 Finally add the `RealtimeEventServiceProvider` to the `providers` array in `config/app.php`
 
 ``` php
-Jlndk\LaravelRealtime\Providers\RealtimeServiceProvider::class,
+App\Providers\RealtimeEventServiceProvider::class,
 ```
 
 
