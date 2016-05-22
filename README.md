@@ -13,85 +13,15 @@ This library is still not quite ready to use. The upstream messaging (client to 
 
 ## Install
 
-First add this package via composer:
+**TL;DR: Download `jlndk/laravel-realtime` via composer, add `Jlndk\LaravelRealtime\Providers\RealtimeServiceProvider::class` to the providers array, publish the files, and add the second service provider: `App\Providers\RealtimeEventServiceProvider::class.`**
 
-``` bash
-$ composer require jlndk/laravel-realtime
-```
-
-Then add the `RealtimeServiceProvider` to the `providers` array in `config/app.php`
-
-``` php
-Jlndk\LaravelRealtime\Providers\RealtimeServiceProvider::class,
-```
-
-After the service provider is added, you need to publish the relevant files:
-``` bash
-$ php artisan vendor:publish --tag=all
-```
-
-Finally add the `RealtimeEventServiceProvider` to the `providers` array in `config/app.php`
-
-``` php
-App\Providers\RealtimeEventServiceProvider::class,
-```
-
+For more detailed instructions, please check out ["Installation" on our wiki](https://github.com/jlndk/laravel-realtime/wiki/Installation)
 
 ## Usage
 
-Add event mappings to `app/Providers/RealtimeEventServiceProvider.php`
+**TL;DR: Add event bindings to the `RealtimeEventServiceProvider` in your app and start the realtime server via `php artisan realtime:start`**
 
-``` php
-/**
- * The event listener mappings for the application.
- *
- * @var array
- */
-protected $listen = [
-    'com.myapp.hello' => [
-        'App\Events\TestEvent'
-    ]
-];
-```
-
-Then start the realtime server with artisan
-
-``` bash
-$ php artisan realtime:start
-```
-
-Now you can connect to the server, as you would with any other WAMPv2 router.
-
-An example with autobahn.js, could be
-
-``` js
-var autobahn = require('autobahn');
-
-var connection = new autobahn.Connection({
-    url: 'ws://127.0.0.1:9090/',
-    realm: 'realm1'
-});
-
-connection.onopen = function(session) {
-
-    var button = document.querySelector(".button");
-
-    button.addEventListener("click", function() {
-        session.publish('com.myapp.hello', ['Hello from javascript!']);
-    });
-
-    // subscribe to a topic
-    function onMyAppHello(args) {
-        console.log("Event:", args[0]);
-    }
-
-    session.subscribe('com.myapp.hello', onMyAppHello);
-};
-
-connection.open();
-```
-
-More examples will be added later.
+For more detailed instructions alog with examples, please check out ["Usage" on our wiki](https://github.com/jlndk/laravel-realtime/wiki/Usage)
 
 ## Change log
 
