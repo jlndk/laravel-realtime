@@ -9,7 +9,7 @@
 A realtime library for laravel without compromises, using WAMPv2!
 
 ## Development status
-This library is still not quite ready to use. The upstream messaging (client to server) should be run fine, but there is no warranty for stable functionality yet. Please use it at your own risk. The library is still under active development, and we hope to ship version 1.1 (our first beta) soon. We will update this repo (and readme) accordingly. 
+This library is still not quite ready to use. ~~The upstream messaging (client to server)~~ Bidirectional messaging (client-to-server and server-to-client) should be run fine, but there is no warranty for stable functionality yet. Please use it at your own risk. The library is still under active development, and we hope to ship version 1.1 (our first beta) soon. We will update this repo (and readme) accordingly. 
 
 ## Install
 

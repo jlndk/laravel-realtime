@@ -4,18 +4,22 @@ namespace Jlndk\LaravelRealtime\Providers;
 
 use Jlndk\LaravelRealtime\Routing\Router;
 use Jlndk\LaravelRealtime\Contracts\Router as RouterContract;
+
 use Jlndk\LaravelRealtime\Events\EventMap;
 use Jlndk\LaravelRealtime\Contracts\EventMap as EventMapContract;
+
 use Jlndk\LaravelRealtime\Peer\Server;
+
+use Jlndk\LaravelRealtime\Broadcasting\RealtimeBroadcaster;
 
 use Thruway\Peer\Router as ThruwayRouter;
 use Thruway\Transport\RatchetTransportProvider;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Broadcasting\BroadcastManager;
 
 class RealtimeEventServiceProvider extends ServiceProvider
 {
-
     /**
      * A map of the events we should subscribe too
      *
@@ -39,7 +43,9 @@ class RealtimeEventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        app(BroadcastManager::class)->extend('realtime', function ($app) {
+            return new RealtimeBroadcaster($app['Jlndk\LaravelRealtime\Peer\Server']);
+        });
     }
 
     /**
@@ -49,10 +55,18 @@ class RealtimeEventServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerEventMap();
-        $this->registerServer();
-        $this->registerThruway();
-        $this->commands($this->commands);
+        if ($this->app->runningInConsole())
+        {
+            $this->registerEventMap();
+            $this->registerTransportProvider();
+            $this->registerServer();
+
+            //Only register router and server if they're actually needed
+            if(isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == "realtime:start") {
+                $this->registerRouter();
+                $this->commands($this->commands);
+            }
+        }
     }
 
     protected function registerEventMap() {
@@ -75,20 +89,13 @@ class RealtimeEventServiceProvider extends ServiceProvider
 
     protected function registerServer()
     {
-        $this->app->bind(Server::class, function ($app) {
+        $this->app->singleton(Server::class, function ($app) {
             //@TODO: Make broadcast channel and port configurable and dynamic
             return new Server($app);
         });
     }
 
-    protected function registerThruway()
-    {
-        $this->app->bind(RatchetTransportProvider::class, function ($app) {
-            $address = config('realtime.ip');
-            $port = config('realtime.port');
-            return new RatchetTransportProvider($address, $port);
-        });
-
+    protected function registerRouter() {
         $this->app->singleton(RouterContract::class, function ($app) {
 
             $router = new Router();
@@ -107,9 +114,16 @@ class RealtimeEventServiceProvider extends ServiceProvider
 
             return $router;
         });
-
     }
 
+    protected function registerTransportProvider()
+    {
+        $this->app->bind(RatchetTransportProvider::class, function ($app) {
+            $address = config('realtime.ip');
+            $port = config('realtime.port');
+            return new RatchetTransportProvider($address, $port);
+        });
+    }
 }
 
 

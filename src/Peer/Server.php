@@ -17,6 +17,15 @@ class Server extends Client
     protected $app;
 
     /**
+     * List sessions info
+     *
+     * @var array
+     */
+    protected $_sessions = [];
+
+    protected $session;
+
+    /**
      * Constructor.
      */
     public function __construct(Application $app,$realm = 'realm1')
@@ -40,6 +49,11 @@ class Server extends Client
      */
     public function onSessionStart($session, $transport)
     {
+        $session->subscribe('wamp.metaevent.session.on_join',  [$this, 'onSessionJoin']);
+        $session->subscribe('wamp.metaevent.session.on_leave', [$this, 'onSessionLeave']);
+
+        $this->session = $session;
+
         if($this->events) {
             //@TODO: Implerment IteratorInterface so we can use EventMap as an array
             foreach ($this->events->getEvents() as $event) {
@@ -49,6 +63,23 @@ class Server extends Client
                 }, $event->getOptions());
             }
         }
+    }
+
+
+    /**
+     * Broadcasts a given event to the session
+     * @param  array  $channels The channels that the event will be broadcasted on
+     * @param  [type] $event    The name of the event that will be broadcasted
+     * @param  [type] $payload  The extra data that the event provides.
+     * @return void
+     */
+    public function publish(array $channels, $event, array $payload = [])
+    {
+        foreach($channels as $channel)
+        {
+            $this->session->publish($channel, [$payload]);
+        }
+
     }
 
     /**
@@ -66,6 +97,43 @@ class Server extends Client
             }
 
             event($event);
+        }
+    }
+
+    /**
+     * Handle on new session joinned
+     *
+     * @param array $args
+     * @param array $kwArgs
+     * @param array $options
+     * @return void
+     * @link https://github.com/crossbario/crossbar/wiki/Session-Metaevents
+     */
+    public function onSessionJoin($args, $kwArgs, $options)
+    {
+        echo "Session {$args[0]->session} joinned\n";
+        $this->_sessions[] = $args[0];
+    }
+
+    /**
+     * Handle on session leaved
+     *
+     * @param array $args
+     * @param array $kwArgs
+     * @param array $options
+     * @return void
+     * @link https://github.com/crossbario/crossbar/wiki/Session-Metaevents
+     */
+    public function onSessionLeave($args, $kwArgs, $options)
+    {
+        if (!empty($args[0]->session)) {
+            foreach ($this->_sessions as $key => $details) {
+                if ($args[0]->session == $details->session) {
+                    echo "Session {$details->session} leaved\n";
+                    unset($this->_sessions[$key]);
+                    return;
+                }
+            }
         }
     }
 }
